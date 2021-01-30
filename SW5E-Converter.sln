@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SW5E-Converter", "SW5E-Converter.csproj", "{82E56130-BC94-4A99-811C-CD2BE402AF9B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82E56130-BC94-4A99-811C-CD2BE402AF9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82E56130-BC94-4A99-811C-CD2BE402AF9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82E56130-BC94-4A99-811C-CD2BE402AF9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82E56130-BC94-4A99-811C-CD2BE402AF9B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C18DC0F-521D-4308-B769-834D45F78038}
+	EndGlobalSection
+EndGlobal
