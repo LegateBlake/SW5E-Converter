@@ -12,28 +12,38 @@ namespace SW5E_Converter
         public static string EXCEL_FILE_NAME = "test.xlsx";
         static void Main(string[] args)
         {
-            using StreamReader r = new StreamReader(JSON_FILE_NAME);
+            Console.WriteLine("Enter the path to the SW5E character.json file");
+            string jsonFilePath = Console.ReadLine().Trim();
+            while (!File.Exists(jsonFilePath))
+            {
+                Console.WriteLine("Enter a valid path to the SW5E character.json file");
+                jsonFilePath = Console.ReadLine().Trim();
+            }
+            Console.WriteLine("Enter the path to the Ord Mantell Nights .xlsx file");
+            string excelFilePath = Console.ReadLine().Trim();
+            while (!File.Exists(jsonFilePath))
+            {
+                Console.WriteLine("Enter a valid path to the Ord Mantell Nights .xlsx file");
+                excelFilePath = Console.ReadLine().Trim();
+            }
+            using StreamReader r = new StreamReader(jsonFilePath);
             string json = r.ReadToEnd();
             Rootobject jsonObject = JsonConvert.DeserializeObject<Rootobject>(json);
 
-            var fileInfo = new FileInfo(EXCEL_FILE_NAME);
-            if (File.Exists(EXCEL_FILE_NAME))
+            var fileInfo = new FileInfo(excelFilePath);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var excelPackage = new OfficeOpenXml.ExcelPackage(fileInfo))
             {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                using (var excelPackage = new OfficeOpenXml.ExcelPackage(fileInfo))
-                {
-                    ExcelWorksheet combatSheet = excelPackage.Workbook.Worksheets[1];
-                    ExcelWorksheet characterSheet = excelPackage.Workbook.Worksheets[2];
-                    ExcelWorksheet inventorySheet = excelPackage.Workbook.Worksheets[3];
-                    ExcelWorksheet powersSheet = excelPackage.Workbook.Worksheets[4];
+                ExcelWorksheet combatSheet = excelPackage.Workbook.Worksheets[1];
+                ExcelWorksheet characterSheet = excelPackage.Workbook.Worksheets[2];
+                ExcelWorksheet inventorySheet = excelPackage.Workbook.Worksheets[3];
+                ExcelWorksheet powersSheet = excelPackage.Workbook.Worksheets[4];
 
-                    writeToCombatSheet(combatSheet, jsonObject);
-                    //writeToCharacterSheet(characterSheet, jsonObject);
-                    //writeToInventorySheet(inventorySheet, jsonObject);
-                    //writeToPowersSheet(powersSheet, jsonObject);
-                    excelPackage.Save();
-                }
-                Console.WriteLine(jsonObject.classes[0].name);
+                writeToCombatSheet(combatSheet, jsonObject);
+                //writeToCharacterSheet(characterSheet, jsonObject);
+                //writeToInventorySheet(inventorySheet, jsonObject);
+                //writeToPowersSheet(powersSheet, jsonObject);
+                excelPackage.Save();
             }
         }
 
