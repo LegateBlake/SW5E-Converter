@@ -8,23 +8,34 @@ namespace SW5E_Converter
 {
     class Program
     {
-        public static string JSON_FILE_NAME = "gil.json";
+        public static string JSON_FILE_NAME = "test.json";
         public static string EXCEL_FILE_NAME = "test.xlsx";
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter the path to the SW5E character.json file");
-            string jsonFilePath = Console.ReadLine().Trim();
-            while (!File.Exists(jsonFilePath))
+            string jsonFilePath;
+            string excelFilePath;
+            if (!File.Exists(JSON_FILE_NAME) || !File.Exists(EXCEL_FILE_NAME))
             {
-                Console.WriteLine("Enter a valid path to the SW5E character.json file");
+                Console.WriteLine("Enter the path to the SW5E .json file including filename");
                 jsonFilePath = Console.ReadLine().Trim();
-            }
-            Console.WriteLine("Enter the path to the Ord Mantell Nights .xlsx file");
-            string excelFilePath = Console.ReadLine().Trim();
-            while (!File.Exists(jsonFilePath))
-            {
-                Console.WriteLine("Enter a valid path to the Ord Mantell Nights .xlsx file");
+                while (!File.Exists(jsonFilePath))
+                {
+                    Console.WriteLine("Enter a valid path to the SW5E .json file including filename");
+                    jsonFilePath = Console.ReadLine().Trim();
+                }
+                Console.WriteLine("Enter the path to the Ord Mantell Nights .xlsx file including filename");
                 excelFilePath = Console.ReadLine().Trim();
+                while (!File.Exists(jsonFilePath))
+                {
+                    Console.WriteLine("Enter a valid path to the Ord Mantell Nights .xlsx file including filename");
+                    excelFilePath = Console.ReadLine().Trim();
+                }
+
+            } 
+            else
+            {
+                jsonFilePath = JSON_FILE_NAME;
+                excelFilePath = EXCEL_FILE_NAME;
             }
             using StreamReader r = new StreamReader(jsonFilePath);
             string json = r.ReadToEnd();
@@ -39,32 +50,83 @@ namespace SW5E_Converter
                 ExcelWorksheet inventorySheet = excelPackage.Workbook.Worksheets[3];
                 ExcelWorksheet powersSheet = excelPackage.Workbook.Worksheets[4];
 
-                writeToCombatSheet(combatSheet, jsonObject);
-                //writeToCharacterSheet(characterSheet, jsonObject);
-                //writeToInventorySheet(inventorySheet, jsonObject);
+                writeToCombatSheet(combatSheet.Cells, jsonObject);
+                writeToCharacterSheet(characterSheet.Cells, jsonObject);
+                writeToInventorySheet(inventorySheet.Cells, jsonObject);
                 //writeToPowersSheet(powersSheet, jsonObject);
                 excelPackage.Save();
             }
         }
 
-        private static void writeToPowersSheet(ExcelWorksheet powersSheet, Rootobject rootobject)
+        private static void writeToPowersSheet(ExcelRange cells, Rootobject rootobject)
         {
             throw new NotImplementedException();
         }
 
-        private static void writeToInventorySheet(ExcelWorksheet inventorySheet, Rootobject rootobject)
+        private static void writeToInventorySheet(ExcelRange cells, Rootobject rootobject)
         {
-            throw new NotImplementedException();
+            Equipment[] equipmentArray = rootobject.equipment;
+            Customequipment[] customEquipmentArray = rootobject.customEquipment;
+            int count = 0;
+            for (int i = 0; i < equipmentArray.Length && i < 50; i++)
+            {
+                Equipment equipment = equipmentArray[i];
+                cells[3 + i, 2].Value = equipment.name + (" (insert cost)");
+                cells[3 + i, 2].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i, 19].Value = "";
+                cells[3 + i, 19].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i, 22].Value = equipment.quantity;
+
+                cells[3 + i, 29].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i, 30].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i, 31].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                count++;
+            }
+            for (int i = count; i < customEquipmentArray.Length && i < 50-count; i++)
+            {
+                Customequipment equipment = customEquipmentArray[i];
+                if (equipment.quantity != 1)
+                {
+                    cells[3 + i, 2].Value = equipment.name + " (" + equipment.cost + " x " + equipment.quantity + ")";
+                }
+                else
+                {
+                    cells[3 + i, 2].Value = equipment.name + " (" + equipment.cost + ")";
+                }
+                cells[3 + i, 19].Value = equipment.weight;
+                cells[3 + i, 22].Value = equipment.quantity;
+
+                cells[3 + i, 29].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i, 30].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i, 31].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                count++;
+            }
+
+            cells[31, 35].Value = rootobject.notes;
         }
 
-        private static void writeToCharacterSheet(ExcelWorksheet characterSheet, Rootobject rootobject)
+        private static void writeToCharacterSheet(ExcelRange cells, Rootobject rootobject)
         {
-            
+            Characteristics characteristics = rootobject.characteristics;
+            cells[3, 26].Value = characteristics.PlaceofBirth;
+            cells[6, 23].Value = characteristics.Age;
+            cells[7, 23].Value = characteristics.Height;
+            //size?cells[8, 23].Value = characteristics.;
+            cells[9, 23].Value = characteristics.Eyes;
+            cells[6, 47].Value = characteristics.Gender;
+            cells[7, 47].Value = characteristics.Weight;
+            cells[8, 47].Value = characteristics.Hair;
+            cells[9, 47].Value = characteristics.Skin;
+            cells[10, 25].Value = characteristics.Appearance;
+            cells[13, 27].Value = characteristics.PersonalityTraits;
+            cells[17, 22].Value = characteristics.Ideal;
+            cells[20, 22].Value = characteristics.Bond;
+            cells[23, 22].Value = characteristics.Flaw;
+            cells[42, 19].Value = characteristics.Backstory;
         }
 
-        private static void writeToCombatSheet(ExcelWorksheet combatSheet, Rootobject rootobject)
+        private static void writeToCombatSheet(ExcelRange cells, Rootobject rootobject)
         {
-            var cells = combatSheet.Cells;
             cells[5, 2].Value = rootobject.name;
             for (int i = 0; i < rootobject.classes.Length && i <= 4; i++)
             {

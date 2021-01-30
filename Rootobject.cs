@@ -78,11 +78,13 @@ namespace SW5E_Converter
     public class Characteristics
     {
         public string alignment { get; set; }
+        [JsonProperty(PropertyName = "Personality Traits")]
         public string PersonalityTraits { get; set; }
         public string Ideal { get; set; }
         public string Bond { get; set; }
         public string Flaw { get; set; }
         public string Gender { get; set; }
+        [JsonProperty(PropertyName = "Place of Birth")]
         public string PlaceofBirth { get; set; }
         public string Age { get; set; }
         public string Height { get; set; }
