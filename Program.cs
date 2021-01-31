@@ -10,8 +10,8 @@ namespace SW5E_Converter
 {
     class Program
     {
-        public static string JSON_FILE_NAME = "test (1).json";
-        public static string EXCEL_FILE_NAME = "gil.xlsx";
+        public static string JSON_FILE_NAME = "sw5e.json";
+        public static string EXCEL_FILE_NAME = "OMNFormattedCharacterSheet.xlsx";
         static void Main(string[] args)
         {
             string jsonFilePath;
