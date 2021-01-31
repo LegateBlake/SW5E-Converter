@@ -257,6 +257,13 @@ namespace SW5E_Converter
             cells[20, 22].Value = characteristics.Bond;
             cells[23, 22].Value = characteristics.Flaw;
             cells[42, 19].Value = characteristics.Backstory;
+
+            cells[14, 2].Value = "Galactic Basic";
+            string[] languages = rootobject.customLanguages;
+            for (int i = 0; i < languages.Length; i++)
+            {
+                cells[15 + i, 2].Value = languages[i];
+            }
         }
 
         private static void writeToCombatSheet(ExcelRange cells, Rootobject rootobject)
