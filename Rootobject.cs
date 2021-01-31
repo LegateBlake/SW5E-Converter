@@ -26,7 +26,7 @@ namespace SW5E_Converter
         public Customfeature[] customFeatures { get; set; }
         public string[] customFeats { get; set; }
         public string[] customTechPowers { get; set; }
-        public object[] customForcePowers { get; set; }
+        public string[] customForcePowers { get; set; }
         public Customequipment[] customEquipment { get; set; }
         public Settings settings { get; set; }
         public string notes { get; set; }
@@ -107,7 +107,7 @@ namespace SW5E_Converter
         public Deathsaves deathSaves { get; set; }
         public bool hasInspiration { get; set; }
         public Featurestimesused featuresTimesUsed { get; set; }
-        public object[] conditions { get; set; }
+        public string[] conditions { get; set; }
         public int exhaustion { get; set; }
         public Highlevelcasting highLevelCasting { get; set; }
     }
@@ -207,6 +207,66 @@ namespace SW5E_Converter
         public object[] hitPoints { get; set; }
         public object[] abilityScoreImprovements { get; set; }
         public string[] forcePowers { get; set; }
+        public string[] techPowers { get; set; }
+
+        public string getHitDice()
+        {
+            switch (name)
+            {
+                case "Berserker":
+                    return "1d12";
+                case "Consular":
+                    return "1d6";
+                case "Engineer":
+                    return "1d8";
+                case "Fighter":
+                    return "1d10";
+                case "Guardian":
+                    return "1d10";
+                case "Monk":
+                    return "1d8";
+                case "Operative":
+                    return "1d8";
+                case "Scholar":
+                    return "1d8";
+                case "Scout":
+                    return "1d10";
+                case "Sentinel":
+                    return "1d8";
+                default:
+                    return "";
+            }
+        }
+
+        public string getHP()
+        {
+
+            switch (name)
+            {
+                case "Berserker":
+                    return "12";
+                case "Consular":
+                    return "6";
+                case "Engineer":
+                    return "8";
+                case "Fighter":
+                    return "10";
+                case "Guardian":
+                    return "10";
+                case "Monk":
+                    return "8";
+                case "Operative":
+                    return "8";
+                case "Scholar":
+                    return "8";
+                case "Scout":
+                    return "10";
+                case "Sentinel":
+                    return "8";
+                default:
+                    return "";
+            }
+        }
     }
 
     public class Equipment
@@ -214,6 +274,7 @@ namespace SW5E_Converter
         public string name { get; set; }
         public int quantity { get; set; }
         public string category { get; set; }
+        public bool equipped { get; set; }
     }
 
     public class Customproficiency
@@ -237,5 +298,27 @@ namespace SW5E_Converter
         public int cost { get; set; }
         public string description { get; set; }
         public int weight { get; set; }
+    }
+
+    public class Power
+    {
+        public Power(string alignment, string name, string castingPeriod, string range, string description, string concentration, string level)
+        {
+            this.alignment = alignment;
+            this.name = name;
+            this.castingPeriod = castingPeriod;
+            this.range = range;
+            this.description = description;
+            this.concentration = concentration;
+            this.level = level;
+        }
+        public string alignment { get; set; }
+        public string name { get; set; }
+        public string castingPeriod { get; set; }
+        public string range { get; set; }
+        public string description { get; set; }
+        public string duration { get; set; }
+        public string concentration { get; set; }
+        public string level { get; set; }
     }
 }

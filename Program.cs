@@ -1,15 +1,17 @@
 ﻿using Newtonsoft.Json;
 using OfficeOpenXml;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 
 namespace SW5E_Converter
 {
     class Program
     {
-        public static string JSON_FILE_NAME = "test.json";
-        public static string EXCEL_FILE_NAME = "test.xlsx";
+        public static string JSON_FILE_NAME = "test (1).json";
+        public static string EXCEL_FILE_NAME = "gil.xlsx";
         static void Main(string[] args)
         {
             string jsonFilePath;
@@ -43,24 +45,156 @@ namespace SW5E_Converter
 
             var fileInfo = new FileInfo(excelFilePath);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (var excelPackage = new OfficeOpenXml.ExcelPackage(fileInfo))
+            using (var excelPackage = new ExcelPackage(fileInfo))
             {
                 ExcelWorksheet combatSheet = excelPackage.Workbook.Worksheets[1];
                 ExcelWorksheet characterSheet = excelPackage.Workbook.Worksheets[2];
                 ExcelWorksheet inventorySheet = excelPackage.Workbook.Worksheets[3];
                 ExcelWorksheet powersSheet = excelPackage.Workbook.Worksheets[4];
+                ExcelWorksheet powerListSheet = excelPackage.Workbook.Worksheets[5];
 
                 writeToCombatSheet(combatSheet.Cells, jsonObject);
                 writeToCharacterSheet(characterSheet.Cells, jsonObject);
                 writeToInventorySheet(inventorySheet.Cells, jsonObject);
-                //writeToPowersSheet(powersSheet, jsonObject);
+                IList<Power> powerList = getPowerList(powerListSheet.Cells);
+                writeToPowersSheet(powersSheet, jsonObject, powerList);
                 excelPackage.Save();
             }
         }
 
-        private static void writeToPowersSheet(ExcelRange cells, Rootobject rootobject)
+        private static List<Power> getPowerList(ExcelRange cells)
         {
-            throw new NotImplementedException();
+            var powerList = new List<Power>();
+            for (int i = 4; i < 325; i++)
+            {
+                string alignment = cells[i, 4].Value.ToString();
+                string name = cells[i, 3].Value.ToString();
+                string castingPeriod = cells[i, 5].Value.ToString();
+                string range = cells[i, 6].Value.ToString();
+                string description = cells[i, 7].Value.ToString();
+                string concentration = cells[i, 4].Value.ToString();
+                string level = cells[i, 2].Value.ToString();
+
+                powerList.Add(new Power(alignment, name, castingPeriod, range, description, concentration, level));
+            }
+            return powerList;
+        }
+
+        private static void writeToPowersSheet(ExcelWorksheet workSheet, Rootobject rootobject, IList<Power> powerList)
+        {
+            ExcelRange cells = workSheet.Cells;
+            var knownForcePowerList = new List<string>();
+            if (rootobject.classes[0].forcePowers != null)
+            {
+                knownForcePowerList.AddRange(rootobject.classes[0].forcePowers);
+            }
+            if (rootobject.customForcePowers != null)
+            {
+                knownForcePowerList.AddRange(rootobject.customForcePowers);
+            }
+
+            var knownTechPowerList = new List<string>();
+            if (rootobject.classes[0].techPowers != null)
+            {
+                knownTechPowerList.AddRange(rootobject.classes[0].techPowers);
+            }
+            if (rootobject.customTechPowers != null)
+            {
+                knownTechPowerList.AddRange(rootobject.customTechPowers);
+            }
+
+            int level0Count = 0;
+            int level1Count = 0;
+            int level2Count = 0;
+
+            foreach (string forcePower in knownForcePowerList)
+            {
+                Power power = powerList.FirstOrDefault(x => x.name.Equals(forcePower));
+                if (power != null)
+                {
+                    if (power.level == "0")
+                    {
+                        if (level0Count >= 10)
+                        {
+                            workSheet.InsertRow(23 + level0Count, 1);
+                        }
+                        cells[23 + level0Count, 2].Value = power.alignment;
+                        cells[23 + level0Count, 7].Value = power.name;
+                        cells[23 + level0Count, 13].Value = power.castingPeriod;
+                        cells[23 + level0Count, 19].Value = power.range;
+                        cells[23 + level0Count, 23].Value = power.description;
+                        cells[23 + level0Count, 53].Value = power.duration;
+                        cells[23 + level0Count, 59].Value = power.concentration;
+                        level0Count++;
+                    }
+                    else if (power.level == "1")
+                    {
+                        cells[35 + level0Count, 2].Value = power.alignment;
+                        cells[35 + level0Count, 7].Value = power.name;
+                        cells[35 + level0Count, 13].Value = power.castingPeriod;
+                        cells[35 + level0Count, 19].Value = power.range;
+                        cells[35 + level0Count, 23].Value = power.description;
+                        cells[35 + level0Count, 53].Value = power.duration;
+                        cells[35 + level0Count, 59].Value = power.concentration;
+                        level1Count++;
+                    }
+                    else if (power.level == "2")
+                    {
+                        cells[45 + level0Count, 2].Value = power.alignment;
+                        cells[45 + level0Count, 7].Value = power.name;
+                        cells[45 + level0Count, 13].Value = power.castingPeriod;
+                        cells[45 + level0Count, 19].Value = power.range;
+                        cells[45 + level0Count, 23].Value = power.description;
+                        cells[45 + level0Count, 53].Value = power.duration;
+                        cells[45 + level0Count, 59].Value = power.concentration;
+                        level2Count++;
+                    }
+                }
+            }
+            foreach (string techPower in knownTechPowerList)
+            {
+                Power power = powerList.FirstOrDefault(x => x.name == techPower);
+                if (power != null)
+                {
+                    if (power.level == "0")
+                    {
+                        if (level0Count >= 10)
+                        {
+                            workSheet.InsertRow(23 + level0Count, 1);
+                        }
+                        cells[23 + level0Count, 2].Value = power.alignment;
+                        cells[23 + level0Count, 7].Value = power.name;
+                        cells[23 + level0Count, 13].Value = power.castingPeriod;
+                        cells[23 + level0Count, 19].Value = power.range;
+                        cells[23 + level0Count, 23].Value = power.description;
+                        cells[23 + level0Count, 53].Value = power.duration;
+                        cells[23 + level0Count, 59].Value = power.concentration;
+                        level0Count++;
+                    }
+                    else if (power.level == "1")
+                    {
+                        cells[35 + level0Count, 2].Value = power.alignment;
+                        cells[35 + level0Count, 7].Value = power.name;
+                        cells[35 + level0Count, 13].Value = power.castingPeriod;
+                        cells[35 + level0Count, 19].Value = power.range;
+                        cells[35 + level0Count, 23].Value = power.description;
+                        cells[35 + level0Count, 53].Value = power.duration;
+                        cells[35 + level0Count, 59].Value = power.concentration;
+                        level1Count++;
+                    }
+                    else if (power.level == "2")
+                    {
+                        cells[45 + level0Count, 2].Value = power.alignment;
+                        cells[45 + level0Count, 7].Value = power.name;
+                        cells[45 + level0Count, 13].Value = power.castingPeriod;
+                        cells[45 + level0Count, 19].Value = power.range;
+                        cells[45 + level0Count, 23].Value = power.description;
+                        cells[45 + level0Count, 53].Value = power.duration;
+                        cells[45 + level0Count, 59].Value = power.concentration;
+                        level2Count++;
+                    }
+                }
+            }
         }
 
         private static void writeToInventorySheet(ExcelRange cells, Rootobject rootobject)
@@ -82,26 +216,26 @@ namespace SW5E_Converter
                 cells[3 + i, 31].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
                 count++;
             }
-            for (int i = count; i < customEquipmentArray.Length && i < 50-count; i++)
+            for (int i = 0; i < customEquipmentArray.Length && i < 50-count; i++)
             {
                 Customequipment equipment = customEquipmentArray[i];
                 if (equipment.quantity != 1)
                 {
-                    cells[3 + i, 2].Value = equipment.name + " (" + equipment.cost + " x " + equipment.quantity + ")";
+                    cells[3 + i + count, 2].Value = equipment.name + " (" + equipment.cost + " x " + equipment.quantity + ")";
                 }
                 else
                 {
-                    cells[3 + i, 2].Value = equipment.name + " (" + equipment.cost + ")";
+                    cells[3 + i + count, 2].Value = equipment.name + " (" + equipment.cost + ")";
                 }
-                cells[3 + i, 19].Value = equipment.weight;
-                cells[3 + i, 22].Value = equipment.quantity;
+                cells[3 + i + count, 19].Value = equipment.weight;
+                cells[3 + i + count, 22].Value = equipment.quantity;
 
-                cells[3 + i, 29].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
-                cells[3 + i, 30].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
-                cells[3 + i, 31].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
-                count++;
+                cells[3 + i + count, 29].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i + count, 30].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i + count, 31].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
             }
 
+            cells[9, 35].Value = "Current Credits: " + rootobject.credits;
             cells[31, 35].Value = rootobject.notes;
         }
 
@@ -111,7 +245,7 @@ namespace SW5E_Converter
             cells[3, 26].Value = characteristics.PlaceofBirth;
             cells[6, 23].Value = characteristics.Age;
             cells[7, 23].Value = characteristics.Height;
-            //size?cells[8, 23].Value = characteristics.;
+            //size?     cells[8, 23].Value = characteristics.;
             cells[9, 23].Value = characteristics.Eyes;
             cells[6, 47].Value = characteristics.Gender;
             cells[7, 47].Value = characteristics.Weight;
@@ -132,8 +266,8 @@ namespace SW5E_Converter
             {
                 writeString(cells[3 + i, 19], rootobject.classes[i].name);
                 cells[3 + i, 26].Value = rootobject.classes[i].levels;
-                cells[3 + i, 28].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
-                cells[3 + i, 32].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                cells[3 + i, 28].Value = rootobject.classes[i].getHitDice();
+                cells[3 + i, 32].Value = rootobject.classes[i].getHP();
             }
 
             cells[1, 37].Value = rootobject.characteristics.alignment;
